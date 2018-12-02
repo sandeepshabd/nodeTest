@@ -1,6 +1,7 @@
 const express = require('express');
 const Joi = require('joi');
 const app = express();
+app.use(express.json())
 
 app.get("/", (req, res) => {
     res.send("hellos");
@@ -11,13 +12,30 @@ app.get('/numbers', (req, res) => {
 });
 
 app.post('/storeData', (req, res) => {
-    const schema = {
-        name: Joi.string().min(3).required()
-    };
-    console.log("result:" + result);
 
-    const result = Joi.validate(req.body, schema);
+    //json schema validation
+    const schema = Joi.object().keys({
+        name: Joi.string().required()
+    });
+
+    //const result = validateData(req.body);
+    const { error } = validateData(req.body);
+
+    if (error) {
+        res.status(400).send(error.details[0].message);
+        return;
+    }
+
+    res.send("success !");
 });
+
+function validateData(message) {
+    const schema = Joi.object().keys({
+        name: Joi.string().required()
+    });
+
+    return Joi.validate(message, schema);
+}
 
 
 //http://localhost:3000/courses/1?prcess=read
